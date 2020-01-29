@@ -1,23 +1,21 @@
 import React from "react";
 import { Field, reduxForm } from "redux-form";
 import TextField from "@material-ui/core/TextField";
-import Checkbox from "@material-ui/core/Checkbox";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Container from "@material-ui/core/Container";
 import Card from "@material-ui/core/Card";
 import { makeStyles } from "@material-ui/core/styles";
 import CardContent from "@material-ui/core/CardContent";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import InputLabel from "@material-ui/core/InputLabel";
 import FormHelperText from "@material-ui/core/FormHelperText";
-import Radio from "@material-ui/core/Radio";
-import RadioGroup from "@material-ui/core/RadioGroup";
 import Typography from "@material-ui/core/Typography";
 
 const validate = values => {
+  
   const errors = {};
+  let regex  = /^[1-9]{0,2}(,{0,1})(\d{2},)*(\d{3})*(?:\.\d{0,2})$/;
   const requiredFields = [
     "summary",
     "description",
@@ -26,16 +24,17 @@ const validate = values => {
     "type",
     "estimatedtime"
   ];
+  console.log(regex.test(values['cost']))
+
   requiredFields.forEach(field => {
     if (!values[field]) {
       errors[field] = "Required";
     }
   });
-  if (
-    values.email &&
-    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)
-  ) {
-    errors.email = "Invalid email address";
+
+  if(regex.test(values['cost']) ){
+    errors['cost'] = "Required Numeric Value";
+
   }
   return errors;
 };
@@ -56,21 +55,6 @@ const renderTextField = ({
   />
 );
 
-const renderCheckbox = ({ input, label }) => (
-  <div>
-    <FormControlLabel
-      control={
-        <Checkbox
-          checked={input.value ? true : false}
-          onChange={input.onChange}
-        />
-      }
-      label={label}
-    />
-  </div>
-);
-
-
 const renderFromHelper = ({ touched, error }) => {
   if (!(touched && error)) {
     return;
@@ -88,13 +72,7 @@ const renderSelectField = ({
 }) => (
   <FormControl error={touched && error}>
     <InputLabel htmlFor="age-native-simple">{label}</InputLabel>
-    <Select
-      native
-      {...input}
-      {...custom}
-      inputProps={{
-      }}
-    >
+    <Select native {...input} {...custom} inputProps={{}}>
       {children}
     </Select>
     {renderFromHelper({ touched, error })}
@@ -104,7 +82,7 @@ const renderSelectField = ({
 const formUI = props => {
   const useStyles = makeStyles({
     card: {
-      minWidth: 275
+      minWidth: 300
     },
     bullet: {
       display: "inline-block",
@@ -161,10 +139,9 @@ const formUI = props => {
 
             <div>
               <Field
-                classes={cls}
                 name="complexity"
                 component={renderSelectField}
-                label="Complexityr"
+                label="Complexity  "
                 fullWidth
               >
                 <option value="" />
@@ -176,7 +153,6 @@ const formUI = props => {
 
             <div>
               <Field
-                classes={cls}
                 name="type"
                 component={renderSelectField}
                 label="Type"
@@ -218,6 +194,6 @@ const formUI = props => {
 };
 
 export default reduxForm({
-  form: "formUI", // a unique identifier for this form
+  form: "formUI",
   validate
 })(formUI);
