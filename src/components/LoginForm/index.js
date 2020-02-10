@@ -20,7 +20,7 @@ function Copyright() {
     <Typography variant="body2" color="textSecondary" align="center">
       {"Copyright © "}
       <Link color="inherit" href="#">
-        Your Website
+         Website URL
       </Link>{" "}
       {new Date().getFullYear()}
       {"."}
@@ -40,7 +40,7 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.secondary.main
   },
   form: {
-    width: "100%", // Fix IE 11 issue.
+    width: "100%",
     marginTop: theme.spacing(1)
   },
   submit: {
@@ -105,7 +105,7 @@ const SignIn = props => {
             color="primary"
           />
         }
-        label="Admin"
+        label={isAdmin ? "Admin" : "User"}
       />
           <Button
             type="submit"
@@ -143,10 +143,8 @@ const SignIn = props => {
 
 const mapStateToProps = state => {
   return {
-    isLoginPending: state.auth.isLoginPending,
-    isLoginSuccess: state.auth.isLoginSuccess,
+    loginStatus: state.auth.loginStatus,
     loginError: state.auth.loginError,
-    isAdmin: state.auth.isAdmin
   };
 };
 

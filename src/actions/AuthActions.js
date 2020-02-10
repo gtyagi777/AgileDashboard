@@ -1,23 +1,31 @@
 // import API from "../apis/API";
 import {
-  SET_LOGIN_PENDING,
   SET_LOGIN_SUCCESS,
   SET_LOGIN_ERROR,
-  SET_ADMIN
+  SET_USER_ID,
+  ADMIN,
+  USER,
+  NO_AUTH
 } from "../constants";
+import API from "../apis/API"
+
 
 export function login(email, password, isAdmin) {
   return dispatch => {
-    dispatch(setLoginPending(true)); 
-    dispatch(setLoginSuccess(false));
+    dispatch(setLoginSuccess(NO_AUTH));
     dispatch(setLoginError(null));
 
-    callLoginApi(email, password, isAdmin, error => {
-      dispatch(setLoginPending(false));
+    callLoginSimulator(email, password, isAdmin, error => {
       if (!error) {
-        localStorage.setItem('token', 'token');
-        dispatch(setLoginSuccess(true));
-        dispatch(setAdminStatus(true));
+        if (isAdmin) {
+          localStorage.setItem("token", ADMIN);
+          localStorage.setItem("userID", 2);
+          dispatch(setLoginSuccess(ADMIN));
+        } else {
+          localStorage.setItem("token", USER);
+          dispatch(setLoginSuccess(USER));
+          localStorage.setItem("userID", 2);
+        }
       } else {
         dispatch(setLoginError(error));
       }
@@ -25,24 +33,29 @@ export function login(email, password, isAdmin) {
   };
 }
 
-function setLoginPending(isLoginPending) {
-  return {
-    type: SET_LOGIN_PENDING,
-    isLoginPending
+
+export function logout() {
+  return dispatch => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userID");
+    dispatch(setLoginSuccess(NO_AUTH));
+    dispatch(setLoginError(null));
   };
 }
 
-function setLoginSuccess(isLoginSuccess) {
+function setLoginSuccess(payload) {
   return {
     type: SET_LOGIN_SUCCESS,
-    isLoginSuccess
+    loginStatus: payload
   };
 }
 
-function setAdminStatus(isAdmin) {
+
+
+function setUserID(payload) {
   return {
-    type: SET_ADMIN,
-    isAdmin
+    type: SET_USER_ID,
+    userid: payload
   };
 }
 
@@ -53,8 +66,7 @@ function setLoginError(loginError) {
   };
 }
 
-function callLoginApi(email, password, isAdmin, callback) {
-  // API.post("/");
+function callLoginSimulator(email, password, isAdmin, callback) {
   setTimeout(() => {
     if (email === "admin@example.com" && password === "admin") {
       return callback(null);
@@ -62,4 +74,34 @@ function callLoginApi(email, password, isAdmin, callback) {
       return callback(new Error("Invalid email and password"));
     }
   }, 1000);
+}
+
+function loginAPI (email, password, isAdmin) {
+  return dispatch =>{
+    const url = (isAdmin) ? '/api/login' : '/api/admin-login';
+    API.post(url, {
+      email: email,
+      password: password
+    })
+    .then(function (response) {
+      console.log(response);
+      if (isAdmin) {
+        localStorage.setItem("token", ADMIN);
+        localStorage.setItem("userID", response.data.id);
+        dispatch(setLoginSuccess(ADMIN));
+        dispatch(setUserID(response.data.id))
+      } else {
+        localStorage.setItem("token", USER);
+        localStorage.setItem("userID", response.data.id);
+        dispatch(setLoginSuccess(USER));
+        dispatch(setUserID(response.data.id))
+
+      }
+    })
+    .catch(function (error) {
+      console.log(error);
+      dispatch(setLoginError(error));
+    });
+
+  }
 }

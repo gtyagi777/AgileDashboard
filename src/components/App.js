@@ -1,26 +1,41 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { Router, Route, Switch } from "react-router-dom";
 import { connect } from "react-redux";
-
+import CssBaseline from "@material-ui/core/CssBaseline";
+import Container from "@material-ui/core/Container";
 import LoginForm from "./LoginForm";
 import NavBar from "./NavBar";
 import formUI from "./UserStory";
+import table from "./DataTable";
+import StoryDetails from "./StoryDetails";
+import history from "../history";
+import { Link } from "react-router-dom";
+import { NO_AUTH } from "../constants";
 
 class App extends React.Component {
   render() {
-    if (this.props.isLoginSuccess || this.props.token ) {
+    if (
+      this.props.loginStatus !== NO_AUTH ||
+      (localStorage.getItem("token") && localStorage.getItem("userID"))
+    ) {
+      //  if (this.props.loginStatus !== NO_AUTH) {
       return (
-        <Router>
-        <div>
-          <NavBar />
-          <Switch>
-            <Route path="/" exact component={formUI} />
-            <Route path="/create-story" exact component={formUI} />
-            <Route path="/stories" exact component={formUI} />/>
-            <Route path="/story/:id" exact component={formUI} />/>
-          </Switch>
-        </div>
-      </Router>
+        <Router history={history}>
+          <React.Fragment>
+            <CssBaseline />
+            <NavBar />
+            <Container>
+              <Switch>
+                <Route path="/" exact component={formUI} />
+                <Route path="/story/new" exact component={formUI} />
+                <Route path="/story" component={table} />
+                />
+                <Route path="/story/:id" exact component={StoryDetails} />
+                />
+              </Switch>
+            </Container>
+          </React.Fragment>
+        </Router>
       );
     }
     return (
@@ -33,9 +48,7 @@ class App extends React.Component {
 
 const mapStateToProps = state => {
   return {
-    isLoginSuccess: state.auth.isLoginSuccess,
-    isAdmin: state.auth.isAdmin,
-    token: state.auth.token
+    loginStatus: state.auth.loginStatus
   };
 };
 

@@ -1,8 +1,7 @@
 import React from "react";
+import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
 import TextField from "@material-ui/core/TextField";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import Container from "@material-ui/core/Container";
 import Card from "@material-ui/core/Card";
 import { makeStyles } from "@material-ui/core/styles";
 import CardContent from "@material-ui/core/CardContent";
@@ -11,11 +10,14 @@ import Select from "@material-ui/core/Select";
 import InputLabel from "@material-ui/core/InputLabel";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import Typography from "@material-ui/core/Typography";
+import { createStory } from "../../actions/StoryActions";
 
+const stripValue = value => {
+  return Number.isFinite(parseFloat(value));
+};
 const validate = values => {
-  
   const errors = {};
-  let regex  = /^[1-9]{0,2}(,{0,1})(\d{2},)*(\d{3})*(?:\.\d{0,2})$/;
+
   const requiredFields = [
     "summary",
     "description",
@@ -24,7 +26,6 @@ const validate = values => {
     "type",
     "estimatedtime"
   ];
-  console.log(regex.test(values['cost']))
 
   requiredFields.forEach(field => {
     if (!values[field]) {
@@ -32,9 +33,16 @@ const validate = values => {
     }
   });
 
-  if(regex.test(values['cost']) ){
-    errors['cost'] = "Required Numeric Value";
+  if (
+    values["cost"] &&
+    (values["cost"].match(/^\${0,1}\d+$/) || values["cost"].match(/^\${0,1}\d+\.\d+$/))
+  ) {
+  } else {
+    errors.cost = "Invalid Number";
+  }
 
+  if (typeof values.estimatedHrs != "number") {
+    errors.estimatedHrs = "Invalid Number";
   }
   return errors;
 };
@@ -70,45 +78,57 @@ const renderSelectField = ({
   children,
   ...custom
 }) => (
-  <FormControl error={touched && error}>
-    <InputLabel htmlFor="age-native-simple">{label}</InputLabel>
-    <Select native {...input} {...custom} inputProps={{}}>
-      {children}
-    </Select>
-    {renderFromHelper({ touched, error })}
-  </FormControl>
+  <div className="MuiFormControl-fullWidth">
+    <FormControl error={touched && error}>
+      <InputLabel htmlFor="age-native-simple">{label}</InputLabel>
+      <Select native {...input} {...custom} inputProps={{}}>
+        {children}
+      </Select>
+
+      {renderFromHelper({ touched, error })}
+    </FormControl>
+  </div>
 );
 
-const formUI = props => {
-  const useStyles = makeStyles({
-    card: {
-      minWidth: 300
-    },
-    bullet: {
-      display: "inline-block",
-      margin: "0 2px",
-      transform: "scale(0.8)"
-    },
-    title: {
-      fontSize: 14
-    },
-    pos: {
-      marginBottom: 12
-    }
-  });
+const useStyle = makeStyles({
+  card: {
+    margin: "auto",
+    minWidth: 300,
+    maxWidth: "50%"
+  },
+  bullet: {
+    display: "inline-block",
+    margin: "0 2px",
+    transform: "scale(0.8)"
+  },
+  title: {
+    fontSize: 14
+  },
+  pos: {
+    marginBottom: 12
+  }
+});
 
-  const cls = useStyles;
+const formatAmount = input => {
+  if (!input) return "";
+  const cleanedInput = input.replace(/,/g, "").replace("$", "");
+  const res = "$" + cleanedInput;
+  return res;
+};
+
+function formUI(props) {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const classes = useStyle();
   const { handleSubmit, pristine, reset, submitting } = props;
+
   return (
-    <Container component="main" maxWidth="xs">
-      <CssBaseline />
-      <br />
-      <Card className={cls.card}>
+    <div className={classes.card}>
+      <Card>
         <CardContent>
           <Typography component="h1" variant="h5">
             Create User Story :
           </Typography>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(values => props.createStory(values))}>
             <div>
               <Field
                 name="summary"
@@ -134,20 +154,21 @@ const formUI = props => {
                 fullWidth
                 component={renderTextField}
                 label="Cost"
+                format={formatAmount}
               />
             </div>
 
             <div>
               <Field
+                fullWidth
                 name="complexity"
                 component={renderSelectField}
                 label="Complexity  "
-                fullWidth
               >
                 <option value="" />
-                <option value={"Low"}>Low</option>
-                <option value={"Mid"}>Mid</option>
-                <option value={"High"}>High</option>
+                <option value={"Low"}>1. Low</option>
+                <option value={"Mid"}>2. Medium</option>
+                <option value={"High"}>3. High</option>
               </Field>
             </div>
 
@@ -159,10 +180,10 @@ const formUI = props => {
                 fullWidth
               >
                 <option value="" />
-                <option value={"enhancement"}>enhancement</option>
-                <option value={"bugfix"}>bugfix</option>
-                <option value={"development"}>development</option>
-                <option value={"qa"}>qa</option>
+                <option value={"enhancement"}>Enhancement</option>
+                <option value={"bugfix"}>Bugfix</option>
+                <option value={"development"}>Development</option>
+                <option value={"qa"}>QA</option>
               </Field>
             </div>
             <div>
@@ -189,11 +210,14 @@ const formUI = props => {
           </form>
         </CardContent>
       </Card>
-    </Container>
+    </div>
   );
-};
+}
 
-export default reduxForm({
+
+const formComp = reduxForm({
   form: "formUI",
   validate
 })(formUI);
+
+export default connect(null, { createStory })(formComp);
