@@ -1,68 +1,104 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+﻿# User Story Dashboard
 
-## Available Scripts
+Since backend API wasn't entirely configured. I've written 2 sets of actions one for API and one to simulate and run application without backend.
 
-In the project directory, you can run:
+## Main Packages 
 
-### `npm start`
+ - React Redux
+ - Thunk
+ - Material UI
+ - AXIOS
+ 
+## Installing Application
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+git clone https://github.com/gtyagi777/AgileDashboard.git
+cd AgileDashboard-master
+npm install
+npm start
+Open http://localhost:3000
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+## DEMO
+https://drive.google.com/open?id=1jH0pWvYfTM3jSU0jXAdPgs1jTP3oJO5h
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+# Component Description
 
-### `npm run build`
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## API Configuration
+### Details
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+ - Axios is used for API calls.  
+ - A new component is created to manage
+ - the base URL.
+      >Location : src\api
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Login Page
 
-### `npm run eject`
+### Assumptions
+ - Since the API end point for Admin and User is different, I assumed I would get an error message if Admin is selected and credentials used are for the normal user and vice versa.
+ 
+### Details
+ - UserID and Login Status is stored in local Storage to persist the
+   values.
+ - Three values used to indicate Login state:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+		  NO_AUTH
+		  ADMIN
+		  USER
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Creating User Story
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### Assumptions
+ - Admin and Normal User, both can create User Story.
 
-## Learn More
+### Details
+ - Redux-form is used.
+ - Validation implemented :  
+ >All fields required 
+ > Currency Format
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## User Story List
 
-### Code Splitting
+### Assumptions
+ - Since the stories don't contain a unique id, I've added used a counter to add and id field to each story.
+ 
+### Details
+ - Admin can view all the stories.
+ - Filtered based on created by and user id.
+ - Color coding for stories:
+ >New: Black 
+ >Approved: Green
+ > Rejected : Black
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+## User Story Details
+### Assumptions
+ - Since the stories don't contain a unique id, I've added used a counter to add and id field to each story.
+ - ID generated is used in URL to display the details.
+ - Assuming id is generated on the server side, id is used to update the status of story.
+ - API code is added to update the story status on server.
+ - For demo, "updateStory" action is used that updates the story status locally.
+ ### Details
+ 
+ - Admin and User can see the details of story,
+ - Only Admin will have access to Approve and button.
 
-### Analyzing the Bundle Size
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+ 
+ 
+## Flow Chart
 
-### Making a Progressive Web App
+And this will produce a flow chart:
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+```mermaid
+graph LR
+A{Login} -- User --> B[Story List]
+A -- Admin --> C(Story List)
+B-->H(Create New Story)
+B --> D(Story Details)
+C --> E{Story Details}
+E --> F(Approved)
+E--> G(Rejected)
+C --> H
 
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
